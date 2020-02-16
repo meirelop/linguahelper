@@ -8,5 +8,3 @@ Add @translate_phrasebool_bot in Telegram and type /start
 # Contributers
 - [@Bekzhan](https://github.com/Bekzhannn)
 - [@Meirkhan](https://github.com/meirelop)
-
-# git pull
