@@ -31,11 +31,11 @@ def start(message):
 @bot.message_handler(commands=['frenchenglish'])  #  french - english
 def englishfrench(message):
     bot.send_message(message.chat.id, randtwo('French','English'))
-    ''' Это функция показываеть слова с Exsel файла рандомно только перевод с французкого на английский .'''
+    ''' Это функция рандомно выбирает и показываеть слова с Exsel файла только перевод слов с французкого на английский .'''
 
 @bot.message_handler(commands=['englishfrench']) # english -frensh
 def frenchenglish(message):
     bot.send_message(message.chat.id, randtwo('English','French'))
-    ''' Это функция показываеть слова с Exsel файла рандомно только перевод с Английского на Французкий .'''
+    ''' Это функция рандомно выбирает и показываеть слова с Exsel файла только перевод слов с Английского на Французкий .'''
 bot.polling()
 
