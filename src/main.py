@@ -2,7 +2,7 @@ import telebot
 import xlrd
 from random import (randint, random)
 
-"""This function selects a random word from an exsel file."""
+
 def rand():
     '''
     Get randomly one translation from given file
