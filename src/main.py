@@ -11,13 +11,13 @@ def rand():
        str
            Random translated phrase/sentence
     '''
-    rb = xlrd.open_workbook('/Users/admin/Projects/linguahelper/inputs/Savedtranslations.xlsx')
+    rb = xlrd.open_workbook('../inputs/Savedtranslations.xlsx')
     sheet = rb.sheet_by_index(0)
     rownum = randint(0, sheet.nrows)
     return sheet.cell_value(rownum, 0)+' ----- '+sheet.cell_value(rownum, 1) + '\n' +sheet.cell_value(rownum, 2)+ ' ----- ' + sheet.cell_value(rownum, 3)
 
 
-TOKEN = "  "
+TOKEN = " "
 bot = telebot.TeleBot(TOKEN)
 
 
@@ -36,7 +36,7 @@ def randtwo(ls, sr):
        str
            Random translated phrase/sentence
     '''
-    rb = xlrd.open_workbook('/Users/admin/Projects/linguahelper/inputs/Savedtranslations.xlsx')
+    rb = xlrd.open_workbook('../inputs/Savedtranslations.xlsx')
     sheet = rb.sheet_by_index(0)
     rownum = randint(0, sheet.nrows)
     while (True):
