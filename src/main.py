@@ -17,7 +17,7 @@ def rand():
     return sheet.cell_value(rownum, 0)+' ----- '+sheet.cell_value(rownum, 1) + '\n' +sheet.cell_value(rownum, 2)+ ' ----- ' + sheet.cell_value(rownum, 3)
 
 
-TOKEN = "1001230120:AAHB5gaj02BOsMTENcNDBGJFgKOzNYm4L70"
+TOKEN = "  "
 bot = telebot.TeleBot(TOKEN)
 
 
