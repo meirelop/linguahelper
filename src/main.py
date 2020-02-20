@@ -11,13 +11,13 @@ def rand():
        str
            Random translated phrase/sentence
     '''
-    rb = xlrd.open_workbook('/Users/admin/Projects/linguahelper/Saved translations.xlsx')
+    rb = xlrd.open_workbook('/Users/admin/Projects/linguahelper/inputs/Savedtranslations.xlsx')
     sheet = rb.sheet_by_index(0)
     rownum = randint(0, sheet.nrows)
     return sheet.cell_value(rownum, 0)+' ----- '+sheet.cell_value(rownum, 1) + '\n' +sheet.cell_value(rownum, 2)+ ' ----- ' + sheet.cell_value(rownum, 3)
 
 
-TOKEN = "  "
+TOKEN = "1001230120:AAHB5gaj02BOsMTENcNDBGJFgKOzNYm4L70"
 bot = telebot.TeleBot(TOKEN)
 
 
@@ -36,7 +36,7 @@ def randtwo(ls, sr):
        str
            Random translated phrase/sentence
     '''
-    rb = xlrd.open_workbook('/Users/admin/Projects/linguahelper/Saved translations.xlsx')
+    rb = xlrd.open_workbook('/Users/admin/Projects/linguahelper/inputs/Savedtranslations.xlsx')
     sheet = rb.sheet_by_index(0)
     rownum = randint(0, sheet.nrows)
     while (True):
@@ -67,6 +67,9 @@ def frenchenglish(message):
     '''
     bot.send_message(message.chat.id, randtwo('English','French'))
 
+#bot.delete_webhook()
 
-bot.polling()
+
+if __name__ == '__main__':
+     bot.polling(none_stop=True)
 
