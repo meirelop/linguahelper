@@ -2,12 +2,15 @@ import telebot
 import xlrd
 from random import randint
 import yaml
+import os
+from flask import Flask, request
 
 with open('config.yml', 'r') as ymlfile:
     cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
 BOT_TOKEN = cfg['telegram']['token']
 bot = telebot.TeleBot(BOT_TOKEN)
+server = Flask(__name__)
 #bot.delete_webhook()
 
 
@@ -74,6 +77,19 @@ def frenchenglish(message):
     bot.send_message(message.chat.id, randtwo('English','French'))
 
 
-if __name__ == '__main__':
-    bot.polling(none_stop=True)
+@server.route('/' + BOT_TOKEN, methods=['POST'])
+def getMessage():
+    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+    return "!", 200
 
+
+@server.route("/")
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url='https://translate-bot-heroku.herokuapp.com/' + BOT_TOKEN)
+    return "!", 200
+
+
+if __name__ == "__main__":
+    # bot.polling(none_stop=True)
+    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
