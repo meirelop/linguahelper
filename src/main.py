@@ -1,11 +1,15 @@
 import telebot
 import xlrd
 from random import randint
+import yaml
 
+with open('config.yml', 'r') as ymlfile:
+    cfg = yaml.load(ymlfile)
 
-BOT_TOKEN = ''
+BOT_TOKEN = cfg['telegram']['token']
 bot = telebot.TeleBot(BOT_TOKEN)
 bot.delete_webhook()
+
 
 def rand():
     """
