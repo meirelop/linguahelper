@@ -5,7 +5,7 @@ import yaml
 import os
 from flask import Flask, request
 
-with open('config.yml', 'r') as ymlfile:
+with open('config.yml.secret', 'r') as ymlfile:
     cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
 BOT_TOKEN = cfg['telegram']['token']
@@ -92,4 +92,5 @@ def webhook():
 
 if __name__ == "__main__":
     # bot.polling(none_stop=True)
+    print(BOT_TOKEN)
     server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
