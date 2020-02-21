@@ -5,7 +5,7 @@ import yaml
 import os
 from flask import Flask, request
 
-with open('config.yml.secret', 'r') as ymlfile:
+with open('config.yml', 'r') as ymlfile:
     cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
 BOT_TOKEN = cfg['telegram']['token']
