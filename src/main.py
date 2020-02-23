@@ -2,16 +2,13 @@ import telebot
 import xlrd
 from random import randint
 import yaml
-import os
-from flask import Flask, request
 
 with open('config.yml', 'r') as ymlfile:
     cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
 BOT_TOKEN = cfg['telegram']['token']
 bot = telebot.TeleBot(BOT_TOKEN)
-server = Flask(__name__)
-#bot.delete_webhook()
+bot.delete_webhook()
 
 
 def rand():
@@ -22,7 +19,7 @@ def rand():
        str
            Random translated phrase/sentence
     """
-    rb = xlrd.open_workbook('../inputs/Savedtranslations.xlsx')
+    rb = xlrd.open_workbook('inputs/Savedtranslations.xlsx')
     sheet = rb.sheet_by_index(0)
     rownum = randint(0, sheet.nrows)
     return sheet.cell_value(rownum, 0)+' ----- '+sheet.cell_value(rownum, 1) + '\n' +sheet.cell_value(rownum, 2)+ ' ----- ' + sheet.cell_value(rownum, 3)
@@ -43,7 +40,7 @@ def randtwo(ls, sr):
        str
            Random translated phrase/sentence
     """
-    rb = xlrd.open_workbook('../inputs/Savedtranslations.xlsx')
+    rb = xlrd.open_workbook('inputs/Savedtranslations.xlsx')
     sheet = rb.sheet_by_index(0)
     rownum = randint(0, sheet.nrows)
     while (True):
@@ -77,20 +74,5 @@ def frenchenglish(message):
     bot.send_message(message.chat.id, randtwo('English','French'))
 
 
-@server.route('/' + BOT_TOKEN, methods=['POST'])
-def getMessage():
-    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
-    return "!", 200
-
-
-@server.route("/")
-def webhook():
-    bot.remove_webhook()
-    bot.set_webhook(url='https://translate-bot-heroku.herokuapp.com/' + BOT_TOKEN)
-    return "!", 200
-
-
 if __name__ == "__main__":
-    # bot.polling(none_stop=True)
-    print(BOT_TOKEN)
-    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+    bot.polling(none_stop=True)
