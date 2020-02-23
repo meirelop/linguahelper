@@ -6,7 +6,7 @@ import yaml
 with open('config.yml', 'r') as ymlfile:
     cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
-BOT_TOKEN = cfg['telegram']['token']
+BOT_TOKEN = cfg['token']
 bot = telebot.TeleBot(BOT_TOKEN)
 bot.delete_webhook()
 

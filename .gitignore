@@ -6,4 +6,3 @@ __pycache__/
 .gitsecret/keys/random_seed
 !*.secret
 config.yml
-token.py
