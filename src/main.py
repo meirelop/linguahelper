@@ -5,6 +5,7 @@ from random import (randint, random)
 import sqlite3
 from sqlalchemy import create_engine
 import pandas as pd
+
 db = create_engine('sqlite:////Users/admin/Projects/linguahelper/inputs/orders.db', echo=False)
 
 
@@ -30,12 +31,8 @@ sql_games = """CREATE TABLE if not exists Games
 sql_commands = [sql_chats,sql_words,sql_words,sql_games]
 
 
-rb = xlrd.open_workbook('../inputs/Savedtranslations.xlsx')
-sheet = rb.sheet_by_index(0)
-mysheet = []
-for i in range(sheet.nrows):
-    mysheet.append([sheet.cell_value(i, 0), sheet.cell_value(i, 1), sheet.cell_value(i, 2), sheet.cell_value(i, 3)])
-n = len(mysheet)
+
+
 
 ''' All data from the exsel file is inserted into the mysheet '''
 
@@ -109,12 +106,26 @@ def start(message):
 
 @bot.message_handler(content_types=['document'])
 def document(message):
-    file_id = message.document.file_id
-    file_info = bot.get_file(file_id)
-    file_path = file_info.file_path
-    downloaded_file = bot.download_file(file_path)
-    # with open("file.xlsx", 'wb') as new_file:
-    #    new_file.write(downloaded_file)
+    try:
+        conn_documents = db.connect()
+        file_id = message.document.file_id
+        file_info = bot.get_file(file_id)
+        file_path = file_info.file_path
+        local_path = file_id + ".xlsx"
+        downloaded_file = bot.download_file(file_path)
+        with open(local_path, 'wb') as new_file:
+            new_file.write(downloaded_file)
+        df = pd.read_excel(local_path, engine='openpyxl', header=None , index_col=None)
+        df = df.rename(columns={0: 'from_language', 1: 'to_language', 2: 'from_word', 3: 'to_word'})
+        chat_id = message.chat.id
+        df['chat_id'] = chat_id
+        cols = df.columns.tolist()
+        cols = cols[-1:] + cols[:-1]
+        df = df[cols]
+        df.to_sql('Words', conn_documents, if_exists='append', index=False)
+        os.remove(local_path)
+    finally:
+        conn_documents.close()
 
 
 
