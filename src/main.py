@@ -5,9 +5,10 @@ from random import (randint, random)
 import sqlite3
 from sqlalchemy import create_engine
 import pandas as pd
+from random import randint
 
-db = create_engine('sqlite:////Users/admin/Projects/linguahelper/inputs/orders.db', echo=False)
-
+db = create_engine('sqlite:////Users/rahme/Desktop/linguahelper-move_old_code/linguahelper/inputs/orders.db',
+                   echo=False)
 
 sql_chats = """CREATE TABLE if not exists chats
                (chat_id int PRIMARY KEY, date_registration datetime)
@@ -28,58 +29,40 @@ sql_games = """CREATE TABLE if not exists Games
                         to_word text PRIMARY KEY,
                         FOREIGN KEY(chat_id) REFERENCES chats(chat_id));
                                                  """
-sql_commands = [sql_chats,sql_words,sql_words,sql_games]
+sql_commands = [sql_chats, sql_words, sql_words, sql_games]
 
 
-
-
-
-''' All data from the exsel file is inserted into the mysheet '''
-
-def rand():
-    '''
-    Get randomly one translation from given file
-       Returns
-       -------
-       str
-           Random translated phrase/sentence
-    '''
-    rm = randint(0, n)
-    return mysheet[rm][0] + ' ----- ' + mysheet[rm][1] + '\n' + mysheet[rm][2] + ' ----- ' + mysheet[rm][3]
-
-def checklang():
+def checklang(user_id):
+    mysheet = []
+    conn = db.connect()
+    result = conn.execute(
+        f"SELECT from_language,to_language, from_word ,to_word  FROM words where chat_id={user_id} ")
+    for i in result:
+        mysheet.append([i[0], i[1], i[2], i[3]])
+    n = len(mysheet)
     lan = set()
     for i in range(n):
-       lan.add(str(mysheet[i][0]) + " ---- " + str(mysheet[i][1]))
+        lan.add(str(mysheet[i][0]) + " ---- " + str(mysheet[i][1]))
+    for i in range(n):
+        lan.add(str(mysheet[i][1]) + " ---- " + str(mysheet[i][0]))
     return lan
-    ''' 
-     
-     Returns
-       -------
-      function returned set languages '''
 
-def randtwo(ls, sr):
-    '''
-       Get randomly one translation from given file
-          Parameters
-          ----------
-          ls: str
-              Language to translate from
-          sr: str
-              Language to translate to
-          Returns
-          -------
-          str
-              Random translated phrase/sentence
-       '''
-    rm = randint(0, n-1)
-    print(rm)
-    while (True):
-        if(ls == mysheet[rm][0] and sr == mysheet[rm][1]):
-            break
-        else:
-            rm = randint(0, n-1)
-    return mysheet[rm][0] + ' ----- ' + mysheet[rm][1] + '\n' + mysheet[rm][2] + ' ----- ' + mysheet[rm][3]
+
+
+def randtwo(ls, sr, chatid):
+    mysheet = []
+    conn = db.connect()
+    result = conn.execute(f"SELECT from_language,to_language, from_word ,to_word  FROM words where chat_id={chatid}")
+    for i in result:
+        mysheet.append([i[0], i[1], i[2], i[3]])
+    n = len(mysheet)
+    rm = randint(0, n - 1)
+    if (ls == mysheet[rm][0] and sr == mysheet[rm][1]):
+        return mysheet[rm][0] + ' ----- ' + mysheet[rm][1] + '\n' + mysheet[rm][2] + ' ----- ' + mysheet[rm][3]
+    if (ls == mysheet[rm][1] and sr == mysheet[rm][0]):
+        return mysheet[rm][1] + ' ----- ' + mysheet[rm][0] + '\n' + mysheet[rm][3] + ' ----- ' + mysheet[rm][2]
+    else:
+        return 'exit'
 
 
 
@@ -87,12 +70,11 @@ TOKEN = "1001230120:AAHB5gaj02BOsMTENcNDBGJFgKOzNYm4L70"
 bot = telebot.TeleBot(TOKEN)
 
 
-
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.send_message(message.chat.id ,rand())
+    bot.send_message(message.chat.id, "Salam")
     chat_id = message.chat.id
-    conn = sqlite3.connect(r'../inputs//orders.db')
+    conn = sqlite3.connect(r'../inputs/orders.db')
     curr = conn.cursor()
     curr.execute(f"select chat_id from chats where chat_id={chat_id}")
     result = curr.fetchone()
@@ -115,7 +97,7 @@ def document(message):
         downloaded_file = bot.download_file(file_path)
         with open(local_path, 'wb') as new_file:
             new_file.write(downloaded_file)
-        df = pd.read_excel(local_path, engine='openpyxl', header=None , index_col=None)
+        df = pd.read_excel(local_path, header=None, index_col=None)
         df = df.rename(columns={0: 'from_language', 1: 'to_language', 2: 'from_word', 3: 'to_word'})
         chat_id = message.chat.id
         df['chat_id'] = chat_id
@@ -128,13 +110,20 @@ def document(message):
         conn_documents.close()
 
 
-
-@bot.message_handler(commands=['frenchenglish'])
+@bot.message_handler(commands=['test'])
 def englishfrench(message):
-    ''' function randomly selects and displays words from an Exsel file,only
-    translate words from French to English.
-    '''
-    bot.send_message(message.chat.id, randtwo('French','English'))
+    user_id = message.chat.id
+
+    def rand():
+        mysheet = []
+        conn = db.connect()
+        result = conn.execute(
+            f"SELECT from_language,to_language, from_word ,to_word  FROM words where chat_id={user_id} ORDER BY RANDOM() LIMIT 1")
+        for i in result:
+            mysheet.append(i[0] + ' ----- ' + i[1] + '\n' + i[2] + ' ----- ' + i[3])
+            return mysheet
+
+    bot.send_message(user_id, rand())
 
 
 @bot.message_handler(commands=['englishfrench'])
@@ -142,24 +131,26 @@ def frenchenglish(message):
     ''' function randomly selects and displays words from an Exsel file,
     only translating words from English to French.
     '''
-    bot.send_message(message.chat.id, randtwo('English','French'))
+    bot.send_message(message.chat.id, randtwo('English', 'French'))
+
 
 @bot.message_handler(commands=["listoflanguages"])
 def handle_start(message):
     '''list of language combinations'''
-    user_markup =telebot.types.ReplyKeyboardMarkup()
-    for i in checklang():
+    user_markup = telebot.types.ReplyKeyboardMarkup()
+    for i in checklang(message.chat.id):
         user_markup.row(i)
-    bot.send_message(message.chat.id,'Selected language!!!',reply_markup=user_markup)
-
+    bot.send_message(message.chat.id, 'Selected language!!!', reply_markup=user_markup)
 
 
 @bot.message_handler(content_types=['text'])
 def main(message):
     '''choice of language combinations'''
     checklan = str(message.text)
+    conn = db.connect()
     lans = checklan.split(' ---- ')
-    bot.send_message(message.chat.id, randtwo(lans[0], lans[1]))
+    bot.send_message(message.chat.id, randtwo(lans[0], lans[1], message.chat.id))
+
 
 if __name__ == '__main__':
     try:
@@ -169,4 +160,3 @@ if __name__ == '__main__':
         bot.polling(none_stop=True)
     finally:
         conn.close()
-
